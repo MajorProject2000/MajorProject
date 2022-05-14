@@ -7,7 +7,11 @@ const jwt = require('jsonwebtoken');
 const user = require('../models/userschema');
 const admin=require('../models/adminschema');
 const employee=require('../models/employeeschema');
+const order=require('../models/orderschema')
+const authentication =require("../Middleware/authentication")
 
+const cookieParser =require("cookie-parser");
+router.use(cookieParser())
 
 router.post('/signUpUser', async (req, res) => {
     console.log(req.body);
@@ -179,6 +183,26 @@ router.get('/logout',(req,res)=>{
     console.log("logout");
     res.clearCookie('jwtoken',{path:'/'});
     res.status(200).send('User logout');
+});
+router.post('/book',(req,res)=>{
+    const newOrder=new order({
+        name:req.body.name,
+        serviceType:req.body.serviceType,
+        price:req.body.price,
+        address:req.body.address,
+        phone:req.body.phone,
+        professionalName:req.body.professionalName
+    })
+    newOrder.save().then(()=>{
+        res.status(201).json({msg:"Order Placed Successfully"})
+    })
+    .catch((error)=>{
+        res.status(400).json({error:error})
+    })
+})
+router.get('/buy',authentication,(req,res)=>{
+    console.log("buy");
+    res.send(req.rootUser)
 });
 
 module.exports = router;
